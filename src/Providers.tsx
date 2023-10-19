@@ -4,8 +4,7 @@ import { httpBatchLink } from '@trpc/client'
 import { useState } from 'react'
 
 export function Providers({children}: {children: React.ReactNode}) {
-  const [queryClient] = useState(() => new QueryClient({
-  }))
+  const [queryClient] = useState(() => new QueryClient())
   const [trpcClient] = useState(() => trpc.createClient({
     links: [
       httpBatchLink({url: 'http://localhost:4000/trpc'})
