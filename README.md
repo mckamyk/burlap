@@ -12,6 +12,8 @@ bun i
 bun dev
 ```
 
+The frontend listens on *localhost:5173*. The backend is on localhost:4000, though you shouldn't need that.
+
 ### The Stack
 
 ![the stack](public/stack.svg)
