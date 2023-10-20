@@ -97,7 +97,7 @@ const GroupedFindingItem = ({finding}: {finding: GroupedFinding}) => {
 
       <div className="col-span-3">
         <div className="w-full h-6 bg-gray-800 relative rounded-full overflow-clip">
-          <div className={`absolute h-6 left-0 bg-blue-600`} style={{width: progress}} />
+          <div className={`absolute h-6 left-0 bg-gradient-to-r from-blue-800 to-blue-600`} style={{width: progress}} />
           <div className="absolute w-full left-0 text-center">{progress}</div>
         </div>
       </div>
