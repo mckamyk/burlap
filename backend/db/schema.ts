@@ -19,6 +19,8 @@ export const rawFindings = sqliteTable('raw_findings', {
   groupedFindingId: integer("grouped_finding_id").notNull(),
 })
 
+export type RawFinding = typeof rawFindings.$inferSelect
+
 export const groupedFindings = sqliteTable('grouped_findings', {
   id: integer('id').primaryKey().notNull(),
   groupingType: text("grouping_type").notNull(),
@@ -33,3 +35,5 @@ export const groupedFindings = sqliteTable('grouped_findings', {
   status: text("status", {enum: ['fixed', 'open', 'in_progress']}).notNull(),
   progress: real("progress").notNull(),
 })
+
+export type GroupedFinding = typeof groupedFindings.$inferSelect
