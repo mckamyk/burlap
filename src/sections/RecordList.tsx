@@ -2,27 +2,29 @@ import {trpc} from '../trpc'
 import type { GroupedFinding } from '../../backend/db/schema'
 import { useState } from 'react'
 import { FilterOptions } from '../App'
-import { ArrowRightIcon, ClockIcon } from '@heroicons/react/20/solid'
+import { ArrowLeftIcon, ArrowRightIcon, ClockIcon } from '@heroicons/react/20/solid'
 import { twMerge } from 'tailwind-merge'
 
 const pageSize = 15
 
 export const GroupedList = ({filters}: {filters: FilterOptions}) => {
   const [page, setPage] = useState(0)
-  const {data} = trpc.getGrouped.useQuery({limit: pageSize, offset: page*pageSize, filters})
+  const {data, isLoading} = trpc.getGrouped.useQuery({limit: pageSize, offset: page*pageSize, filters})
+  console.log(isLoading)
 
   return (
     <div className="w-full">
-      <div className="bg-gray-700 rounded-t-md flex justify-center items-center">
-        {data && (
-          <>
-          <button className="p-2 hover:shadow-lg rounded-lg hover:bg-slate-800 transition-colors" disabled={!page} onClick={() => setPage(page - 1)}>{'<-'}</button>
-            <span>Page {page+1}/{Math.ceil(data.total/pageSize)}</span>
-          <button className="p-2" disabled={page+1 === Math.ceil(data.total/pageSize)} onClick={() => setPage(page + 1)}>{'->'}</button>
-          </>
-        )}
+      <div className="bg-gray-700 rounded-t-md flex justify-center items-center py-1">
+        <button className="p-1 hover:shadow-lg rounded-lg hover:bg-gray-800 transition-colors" disabled={!page} onClick={() => setPage(page - 1)}>
+          <ArrowLeftIcon className="h-6 w-6" />
+        </button>
+          <span className="mx-2">Page {page+1}/{data ? Math.ceil(data.total/pageSize) : '-'}</span>
+        <button className="p-1 hover:shadow-lg rounded-lg hover:bg-gray-800 transition-colors" disabled={data && page+1 === Math.ceil(data.total/pageSize)} onClick={() => setPage(page + 1)}>
+            <ArrowRightIcon className="h-6 w-6" />
+        </button>
       </div>
-      <div className="space-y-2 p-4 border-2 border-gray-700 rounded-b-md">
+      <div className="space-y-2 p-4 border-2 border-gray-700 rounded-b-md h-[748px]">
+        {isLoading && <Loading />}
         {data && data.findings.map(g => (
           <GroupedFindingItem key={g.id} finding={g} />
         ))}
@@ -34,6 +36,18 @@ export const GroupedList = ({filters}: {filters: FilterOptions}) => {
 const year = new Date(0).setUTCFullYear(1971)
 const month = new Date(0).setUTCMonth(1)
 const day = new Date(0).setUTCDate(2)
+
+const Loading = () => {
+  const arr = new Array(pageSize).fill(0, 0, 15)
+
+  return (
+    <>
+      {arr.map((_, i) => (
+        <div className="h-10 bg-gray-700 animate-pulse" key={i} />
+      ))}
+    </>
+  )
+}
 
 const formatDiff = (diff: number) => {
   let remain = diff
@@ -61,7 +75,6 @@ const GroupedFindingItem = ({finding}: {finding: GroupedFinding}) => {
   const diffString = formatDiff(diff)
 
   const progress = Math.floor(finding.progress*100).toString() + "%"
-  console.log("progress", progress)
 
   return (
     <div className={twMerge("grid grid-cols-10 w-full h-10 px-2 bg-gray-700 items-center border border-transparent shadow")}>
