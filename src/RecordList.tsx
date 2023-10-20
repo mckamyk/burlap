@@ -11,9 +11,9 @@ export const GroupedList = () => {
       <div className="bg-slate-700 rounded flex justify-end items-center">
         {data && (
           <>
-          <button className="p-4" disabled={!page} onClick={() => setPage(page - 1)}>{'<-'}</button>
+          <button className="p-2 hover:shadow-lg rounded-lg hover:bg-slate-800 transition-colors" disabled={!page} onClick={() => setPage(page - 1)}>{'<-'}</button>
             <span>Page {page+1}/{Math.ceil(data.total/25)}</span>
-          <button className="p-4" disabled={page+1 === Math.ceil(data.total/25)} onClick={() => setPage(page + 1)}>{'->'}</button>
+          <button className="p-2" disabled={page+1 === Math.ceil(data.total/25)} onClick={() => setPage(page + 1)}>{'->'}</button>
           </>
         )}
       </div>
