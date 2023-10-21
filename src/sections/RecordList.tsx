@@ -10,7 +10,6 @@ const pageSize = 15
 export const GroupedList = ({filters}: {filters: FilterOptions}) => {
   const [page, setPage] = useState(0)
   const {data, isLoading} = trpc.getGrouped.useQuery({limit: pageSize, offset: page*pageSize, filters})
-  console.log(isLoading)
 
   return (
     <div className="w-full">

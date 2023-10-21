@@ -22,10 +22,10 @@ const filtersInput = z.object({
 
 const buildFilterArray = (filters: FilterOptions) => {
   const out = []
-  if (filters.owner) out.push(eq(groupedFindings.owner, filters.owner))
-  if (filters.analyst) out.push(eq(groupedFindings.securityAnalyst, filters.analyst))
+  if (filters.owner)    out.push(eq(groupedFindings.owner, filters.owner))
+  if (filters.analyst)  out.push(eq(groupedFindings.securityAnalyst, filters.analyst))
   if (filters.severity) out.push(eq(groupedFindings.severity, filters.severity))
-  if (filters.status) out.push(eq(groupedFindings.status, filters.status))
+  if (filters.status)   out.push(eq(groupedFindings.status, filters.status))
 
   return and(...out)
 }
@@ -84,7 +84,30 @@ export const appRouter = t.router({
       status: await status.then(r => r.sort((a, b) => b.count - a.count)),
       severity: await severity.then(r => r.sort((a, b) => b.count - a.count)),
     }
-  })
+  }),
+
+  getPieValues: t.procedure
+    .input(filtersInput)
+    .output(z.object({
+      low: z.number(),
+      medium: z.number(),
+      high: z.number(),
+      critical: z.number(),
+    }))
+    .query(async ({input}) => {
+    const filters = buildFilterArray({...input, severity: undefined})
+
+    const data = await db.select({count: sql<number>`count(${groupedFindings.severity})`, severity: groupedFindings.severity})
+      .from(groupedFindings).groupBy(groupedFindings.severity).where(filters)
+
+    return {
+      low: data.find(d => d.severity ==='low')?.count || 0,
+      medium: data.find(d => d.severity ==='medium')?.count || 0,
+      high: data.find(d => d.severity ==='high')?.count || 0,
+      critical: data.find(d => d.severity ==='critical')?.count || 0,
+
+    }
+  }),
 })
 
 export type AppRouter = typeof appRouter
