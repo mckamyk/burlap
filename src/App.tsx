@@ -26,12 +26,7 @@ function App() {
   return (
     <trpc.Provider client={trpcClient} queryClient={queryClient}>
       <QueryClientProvider client={queryClient}>
-        <div className="min-h-screen bg-slate-900 flex flex-col items-center">
-
-          <div className="w-full bg-slate-900 h-16 text-center text-2xl italic font-bold">
-            Burlap
-          </div>
-
+        <div className="min-h-screen bg-slate-900 flex flex-col items-center pt-4">
           <div className="max-w-[1200px] w-full grid grid-cols-4 gap-8 px-4 lg:px-0">
             <div className="col-span-4 lg:col-span-2 flex items-center">
               <div className="grow">
