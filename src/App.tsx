@@ -32,12 +32,11 @@ function App() {
             Burlap
           </div>
 
-          <div className="max-w-[1200px] w-full grid grid-cols-4 gap-8">
-            <div className="col-span-4 md:col-span-2 lg:col-span-1">
-              <Filters filters={filters} setFilters={setFilters} />
-            </div>
-
-            <div className="col-span-4 md:col-span-2 lg:col-span-1 h-80 bg-green-800">
+          <div className="max-w-[1200px] w-full grid grid-cols-4 gap-8 px-4 lg:px-0">
+            <div className="col-span-4 lg:col-span-2 flex items-center">
+              <div className="grow">
+                <Filters filters={filters} setFilters={setFilters} />
+              </div>
             </div>
 
             <div className="col-span-4 lg:col-span-2">

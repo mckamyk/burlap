@@ -60,33 +60,36 @@ export const Filters = ({filters, setFilters}: {filters: FilterOptions, setFilte
   ]
 
   return (
-    <div className="relative h-full border-2 border-gray-700 rounded-lg">
+    <div className="relative h-full border-2 border-gray-700 rounded-lg w-full">
       <div className="absolute -top-[19px] left-3 px-2 py-1 bg-slate-900 font-bold text-gray-200">Filters</div>
 
-      <div className="p-4">
-        <Listbox value={filters.owner || ""} onChange={(opt) => setFilters({...filters, owner: opt})}>
-          <div className="text-sm text-gray-400 font-semibold pl-2">Owner:</div>
-          <div className="relative">
-            <Listbox.Button className="bg-gray-700 rounded-md shadow shadow-gray-400/50 h-8 flex items-center w-full overflow-clip">
-              <div className="grow">
-                {filters.owner || ""}
-              </div>
-              {filters.owner ? (
-                <XMarkIcon onClick={(e) => {setFilters({...filters, owner: undefined}); e.preventDefault()}} className="h-8 w-8 p-2 hover:bg-gray-500 transition-colors" />
-              ) : (
-                <ArrowDownIcon className="h-4 w-4 mr-2" />
-              )}
-            </Listbox.Button>
-            <Listbox.Options className="rounded-md top-9 absolute w-full overflow-clip z-10 shadow shadow-gray-400/50">
-              {!isLoading && data && data.owner.map(owner => (
-                <Listbox.Option className="hover:bg-gray-500 transition-colors px-2 py-1 bg-gray-700 cursor-pointer flex justify-between" key={owner.owner} value={owner.owner}>
-                  <span>{owner.owner}</span> <span>({owner.count})</span>
-                </Listbox.Option>
-              ))}
-            </Listbox.Options>
-          </div>
-        </Listbox>
+      <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-2">
+        <div className="">
+          <Listbox value={filters.owner || ""} onChange={(opt) => setFilters({...filters, owner: opt})}>
+            <div className="text-sm text-gray-400 font-semibold pl-2">Owner:</div>
+            <div className="relative">
+              <Listbox.Button className="bg-gray-700 rounded-md shadow shadow-gray-400/50 h-8 flex items-center w-full overflow-clip">
+                <div className="grow">
+                  {filters.owner || ""}
+                </div>
+                {filters.owner ? (
+                  <XMarkIcon onClick={(e) => {setFilters({...filters, owner: undefined}); e.preventDefault()}} className="h-8 w-8 p-2 hover:bg-gray-500 transition-colors" />
+                ) : (
+                  <ArrowDownIcon className="h-4 w-4 mr-2" />
+                )}
+              </Listbox.Button>
+              <Listbox.Options className="rounded-md top-9 absolute w-full overflow-clip z-10 shadow shadow-gray-400/50">
+                {!isLoading && data && data.owner.map(owner => (
+                  <Listbox.Option className="hover:bg-gray-500 transition-colors px-2 py-1 bg-gray-700 cursor-pointer flex justify-between" key={owner.owner} value={owner.owner}>
+                    <span>{owner.owner}</span> <span>({owner.count})</span>
+                  </Listbox.Option>
+                ))}
+              </Listbox.Options>
+            </div>
+          </Listbox>
+      </div>
 
+      <div className="">
         <Listbox value={filters.analyst || ""} onChange={(opt) => setFilters({...filters, analyst: opt})}>
           <div className="text-sm text-gray-400 font-semibold pl-2">Analyst:</div>
           <div className="relative">
@@ -109,40 +112,46 @@ export const Filters = ({filters, setFilters}: {filters: FilterOptions, setFilte
             </Listbox.Options>
           </div>
         </Listbox>
+      </div>
 
-        <RadioGroup value={filters.status || ""} onChange={(opt: FilterOptions['status']) => setFilters({...filters, status: opt})}>
-          <RadioGroup.Label className="text-sm text-gray-400 pl-2 font-semibold">Status:</RadioGroup.Label>
-          <div className="rounded-md overflow-clip">
-            {stati.map(stat => (
-              <RadioGroup.Option key={stat.name} value={stat.value} className={({checked}) => twMerge("bg-gray-700 hover:bg-gray-500 flex items-center justify-between border-b border-b-gray-500 transition-colors last:border-none", checked && "bg-blue-800 hover:bg-blue-600")}>
-                {({checked}) => (
-                  <>
-                    {checked ? <XMarkIcon onClick={() => setFilters({...filters, status: undefined})} className="h-8 w-8 p-1 text-white hover:bg-red-800" /> : <span className="h-8 w-8 p-1" />}
-                    <span className="grow pl-1">{stat.name}</span>
-                    <span className="pr-2">({stat.count})</span>
-                  </>
-                )}
-              </RadioGroup.Option>
-            ))}
-          </div>
-        </RadioGroup>
+        <div className="grow">
+          <RadioGroup value={filters.status || ""} onChange={(opt: FilterOptions['status']) => setFilters({...filters, status: opt})}>
+            <RadioGroup.Label className="text-sm text-gray-400 pl-2 font-semibold">Status:</RadioGroup.Label>
+            <div className="rounded-md overflow-clip">
+              {stati.map(stat => (
+                <RadioGroup.Option key={stat.name} value={stat.value} className={({checked}) => twMerge("bg-gray-700 hover:bg-gray-500 flex items-center justify-between border-b border-b-gray-500 transition-colors last:border-none", checked && "bg-blue-800 hover:bg-blue-600")}>
+                  {({checked}) => (
+                    <>
+                      {checked ? <XMarkIcon onClick={() => setFilters({...filters, status: undefined})} className="h-8 w-8 p-1 text-white hover:bg-red-800" /> : <span className="h-8 w-8 p-1" />}
+                      <span className="grow pl-1">{stat.name}</span>
+                      <span className="pr-2">({stat.count})</span>
+                    </>
+                  )}
+                </RadioGroup.Option>
+              ))}
+            </div>
+          </RadioGroup>
+        </div>
 
-        <RadioGroup value={filters.severity || ""} onChange={(opt: FilterOptions['severity']) => setFilters({...filters, severity: opt})}>
-          <RadioGroup.Label className="text-sm text-gray-400 pl-2 font-semibold">Severity:</RadioGroup.Label>
-          <div className="rounded-md overflow-clip">
-            {sevs.map(stat => (
-              <RadioGroup.Option key={stat.name} value={stat.value} className={({checked}) => twMerge("bg-gray-700 hover:bg-gray-500 flex items-center justify-between border-b border-b-gray-500 transition-colors last:border-none", checked && "bg-blue-800 hover:bg-blue-600")}>
-                {({checked}) => (
-                  <>
-                    {checked ? <XMarkIcon onClick={() => setFilters({...filters, severity: undefined})} className="h-8 w-8 p-1 text-white hover:bg-red-800" /> : <span className="h-8 w-8 p-1" />}
-                    <span className="grow pl-1">{stat.name}</span>
-                    <span className="pr-2">({stat.count})</span>
-                  </>
-                )}
-              </RadioGroup.Option>
-            ))}
-          </div>
-        </RadioGroup>
+        <div className="grow">
+          <RadioGroup value={filters.severity || ""} onChange={(opt: FilterOptions['severity']) => setFilters({...filters, severity: opt})}>
+            <RadioGroup.Label className="text-sm text-gray-400 pl-2 font-semibold">Severity:</RadioGroup.Label>
+            <div className="rounded-md overflow-clip">
+              {sevs.map(stat => (
+                <RadioGroup.Option key={stat.name} value={stat.value} className={({checked}) => twMerge("bg-gray-700 hover:bg-gray-500 flex items-center justify-between border-b border-b-gray-500 transition-colors last:border-none", checked && "bg-blue-800 hover:bg-blue-600")}>
+                  {({checked}) => (
+                    <>
+                      {checked ? <XMarkIcon onClick={() => setFilters({...filters, severity: undefined})} className="h-8 w-8 p-1 text-white hover:bg-red-800" /> : <span className="h-8 w-8 p-1" />}
+                      <span className="grow pl-1">{stat.name}</span>
+                      <span className="pr-2">({stat.count})</span>
+                    </>
+                  )}
+                </RadioGroup.Option>
+              ))}
+            </div>
+          </RadioGroup>
+        </div>
+
       </div>
     </div>
   )
