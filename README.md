@@ -26,5 +26,5 @@ The main nice thing here is that Drizzle, tRPC, React Query, and Typescript all 
 
 Admittedly, I did not focus too much on making a beautiful/snazzy looking UI. I mostly focused on the tooling used to connect everything together, keeping it more technically simple to extend and scale.
 
-In general, I tend to focus on the mechanical aspect of the page, and less about design. Having a UI/UX Designer on my team is a great force-multiplier for me!
+In general, I tend to focus on the mechanical aspect of development, and less about design. Having a UI/UX Designer on my team is a great force-multiplier for me!
 
