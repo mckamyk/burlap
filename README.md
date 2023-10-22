@@ -23,6 +23,7 @@ The main nice thing here is that Drizzle, tRPC, React Query, and Typescript all 
 ### The Dashboard
 
 ![the dashboard](public/final.png)
+![group detail](public/groupdetail.png)
 
 Admittedly, I did not focus too much on making a beautiful/snazzy looking UI. I mostly focused on the tooling used to connect everything together, keeping it more technically simple to extend and scale.
 
