@@ -31,8 +31,8 @@ const buildFilterArray = (filters: FilterOptions) => {
 }
 
 export const appRouter = t.router({
-  getRaws: t.procedure.query(() => {
-    return db.select().from(rawFindings)
+  getRaws: t.procedure.input(z.object({id: z.number()})).query(({input}) => {
+    return db.select().from(rawFindings).where(eq(rawFindings.groupedFindingId, input.id))
   }),
 
   getGrouped: t.procedure
@@ -42,9 +42,19 @@ export const appRouter = t.router({
       filters: filtersInput.optional(),
     }).optional())
     .query(async ({input}) => {
+
     const filters = buildFilterArray(input?.filters || {})
     const total = await db.select({count: sql<number>`count(*)`}).from(groupedFindings).where(filters).then(r => r[0].count)
-    const findings = await db.select().from(groupedFindings).where(filters).limit(input?.limit || 25).offset(input?.offset || 0)
+
+    const findings = db
+      .select({finding: groupedFindings, raws: sql<number>`count(${rawFindings.groupedFindingId})`})
+      .from(groupedFindings)
+      .leftJoin(rawFindings, eq(groupedFindings.id, rawFindings.groupedFindingId))
+      .groupBy(groupedFindings.id)
+      .where(filters)
+      .limit(input?.limit || 25).offset(input?.offset || 0)
+      .all()
+
     return {
       total, findings
     }
@@ -105,7 +115,6 @@ export const appRouter = t.router({
       medium: data.find(d => d.severity ==='medium')?.count || 0,
       high: data.find(d => d.severity ==='high')?.count || 0,
       critical: data.find(d => d.severity ==='critical')?.count || 0,
-
     }
   }),
 })

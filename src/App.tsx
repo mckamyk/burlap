@@ -36,8 +36,10 @@ function App() {
             <div className="col-span-4 md:col-span-2 lg:col-span-1">
               <Filters filters={filters} setFilters={setFilters} />
             </div>
+
             <div className="col-span-4 md:col-span-2 lg:col-span-1 h-80 bg-green-800">
             </div>
+
             <div className="col-span-4 lg:col-span-2">
               <SeverityPie filters={filters} />
             </div>

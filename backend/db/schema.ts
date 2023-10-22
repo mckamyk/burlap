@@ -16,7 +16,7 @@ export const rawFindings = sqliteTable('raw_findings', {
   status: text("status", {enum: ['fixed', 'open', 'in_progress']}).notNull(),
   remediationUrl: text("remediation_url").notNull(),
   remediationText: text("remediation_text").notNull(),
-  groupedFindingId: integer("grouped_finding_id").notNull(),
+  groupedFindingId: integer("grouped_finding_id").notNull().references(() => groupedFindings.id)
 })
 
 export type RawFinding = typeof rawFindings.$inferSelect
