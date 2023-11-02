@@ -60,6 +60,22 @@ export const appRouter = t.router({
     }
   }),
 
+  getPossibleOwners: t.procedure
+    .output(z.array(z.string()))
+    .query(async () => {
+      const owners = await db.select().from(groupedFindings).groupBy(groupedFindings.owner)
+      return owners.map(o => o.owner)
+    }),
+
+  changeOwner: t.procedure
+    .input(z.object({
+      id: z.number().min(0),
+      owner: z.string().min(1),
+    }))
+    .mutation(async ({input}) => {
+      await db.update(groupedFindings).set({owner: input.owner}).where(eq(groupedFindings.id, input.id))
+    }),
+
   getFilterOptions: t.procedure
     .input(filtersInput)
     .output(z.object({
@@ -82,6 +98,8 @@ export const appRouter = t.router({
     })).query( async ({input}) => {
 
     const filters = buildFilterArray(input)
+
+
 
     const owner = db.select({count: sql<number>`count(${groupedFindings.owner})`, owner: groupedFindings.owner}).from(groupedFindings).groupBy(groupedFindings.owner).where(filters)
     const analyst = db.select({count: sql<number>`count(${groupedFindings.securityAnalyst})`, analyst: groupedFindings.securityAnalyst}).from(groupedFindings).groupBy(groupedFindings.securityAnalyst).where(filters)

@@ -2,14 +2,15 @@ import {trpc} from '../trpc'
 import type { GroupedFinding, RawFinding } from '../../backend/db/schema'
 import { useState } from 'react'
 import { FilterOptions } from '../App'
-import { ArrowLeftIcon, ArrowRightIcon, CheckIcon, ClockIcon, DocumentPlusIcon } from '@heroicons/react/20/solid'
+import { ArrowDownIcon, ArrowLeftIcon, ArrowRightIcon, CheckIcon, ClockIcon, DocumentPlusIcon } from '@heroicons/react/20/solid'
 import { twMerge } from 'tailwind-merge'
+import { Listbox } from '@headlessui/react'
 
 const pageSize = 15
 
 export const GroupedList = ({filters}: {filters: FilterOptions}) => {
   const [page, setPage] = useState(0)
-  const {data, isLoading} = trpc.getGrouped.useQuery({limit: pageSize, offset: page*pageSize, filters})
+  const {data, isLoading } = trpc.getGrouped.useQuery({limit: pageSize, offset: page*pageSize, filters})
   const [selectedRecord, setSelectedRecord] = useState<GroupedFinding | undefined>();
 
   return (
@@ -93,6 +94,7 @@ const GroupedFindingItem = ({finding, setSelected, raws}: {finding: GroupedFindi
         <div className="">
           {finding.owner}
         </div>
+
       </div>
       <div className="col-span-1">
         <div className="text-xs">Analyst</div>
@@ -125,7 +127,15 @@ const GroupedFindingItem = ({finding, setSelected, raws}: {finding: GroupedFindi
 }
 
 const SelectedGroupedFinding = ({finding, setFinding}: {finding: GroupedFinding, setFinding: (finding: GroupedFinding | undefined) => void}) => {
-   const {data, isLoading} = trpc.getRaws.useQuery({id: finding.id})
+  const {data, isLoading} = trpc.getRaws.useQuery({id: finding.id})
+  const {data: owners, isLoading: ownersLoading} = trpc.getPossibleOwners.useQuery()
+  const {mutate} = trpc.changeOwner.useMutation()
+  const [owner, setOwner] = useState<string>(finding.owner)
+
+  const ownerChange = (owner: string) => {
+    setOwner(owner)
+    mutate({ id: finding.id, owner })
+  }
   
   return (
     <>
@@ -136,7 +146,23 @@ const SelectedGroupedFinding = ({finding, setFinding}: {finding: GroupedFinding,
         <div className="grid grid-cols-3 gap-2">
           <div className="">
             <div className="text-xs font-bold text-gray-400">Owner</div>
-            <div>{finding.owner}</div>
+            <Listbox value={owner} onChange={ownerChange}>
+              <div className="relative">
+                <Listbox.Button className="bg-gray-700 rounded-md shadow shadow-gray-400/50 h-8 flex items-center w-full overflow-clip">
+                  <div className="grow">
+                    {owner || ""}
+                  </div>
+                  <ArrowDownIcon className="h-4 w-4 mr-2" />
+                </Listbox.Button>
+                <Listbox.Options className="rounded-md top-9 absolute w-full overflow-clip z-10 shadow shadow-gray-400/50">
+                  {!ownersLoading && owners && owners.map(owner => (
+                    <Listbox.Option className="hover:bg-gray-500 transition-colors px-2 py-1 bg-gray-700 cursor-pointer flex justify-between" key={owner} value={owner}>
+                      <span>{owner}</span>
+                    </Listbox.Option>
+                  ))}
+                </Listbox.Options>
+              </div>
+            </Listbox>
           </div>
 
           <div className="">
