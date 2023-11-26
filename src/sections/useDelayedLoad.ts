@@ -28,8 +28,7 @@ export const useDelayedLoad = (trpcLoading: boolean, options?: Options) => {
     }
   }, [trpcLoading, started])
 
-  if (!started) return false
-  if (started === "pre") return false
+  if (!started || started === "pre") return false
   if (started === "middle") return true
   return trpcLoading
 }
