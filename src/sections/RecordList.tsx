@@ -1,17 +1,19 @@
-import {trpc} from '../trpc'
+import { trpc } from '../trpc'
 import type { GroupedFinding, RawFinding } from '../../backend/db/schema'
 import { useState } from 'react'
 import { FilterOptions } from '../App'
 import { ArrowDownIcon, ArrowLeftIcon, ArrowRightIcon, CheckIcon, ClockIcon, DocumentPlusIcon } from '@heroicons/react/20/solid'
 import { twMerge } from 'tailwind-merge'
 import { Listbox } from '@headlessui/react'
+import { useDelayedLoad } from './useDelayedLoad'
 
 const pageSize = 15
 
-export const GroupedList = ({filters}: {filters: FilterOptions}) => {
+export const GroupedList = ({ filters }: { filters: FilterOptions }) => {
   const [page, setPage] = useState(0)
-  const {data, isLoading } = trpc.getGrouped.useQuery({limit: pageSize, offset: page*pageSize, filters})
+  const { data, isLoading } = trpc.getGrouped.useQuery({ limit: pageSize, offset: page * pageSize, filters })
   const [selectedRecord, setSelectedRecord] = useState<GroupedFinding | undefined>();
+  const shouldShowLoader = useDelayedLoad(isLoading)
 
   return (
     <div className="w-full">
@@ -19,25 +21,24 @@ export const GroupedList = ({filters}: {filters: FilterOptions}) => {
         {selectedRecord && (
           <div>Finding Group #{selectedRecord.id}</div>
         ) || (
-          <>
-            <button className="p-1 hover:shadow-lg rounded-lg hover:bg-gray-800 transition-colors" disabled={!page} onClick={() => setPage(page - 1)}>
-              <ArrowLeftIcon className="h-6 w-6" />
-            </button>
-              <span className="mx-2">Page {page+1}/{data ? Math.ceil(data.total/pageSize) : '-'}</span>
-            <button className="p-1 hover:shadow-lg rounded-lg hover:bg-gray-800 transition-colors" disabled={data && page+1 === Math.ceil(data.total/pageSize)} onClick={() => setPage(page + 1)}>
+            <>
+              <button className="p-1 hover:shadow-lg rounded-lg hover:bg-gray-800 transition-colors" disabled={!page} onClick={() => setPage(page - 1)}>
+                <ArrowLeftIcon className="h-6 w-6" />
+              </button>
+              <span className="mx-2">Page {page + 1}/{data ? Math.ceil(data.total / pageSize) : '-'}</span>
+              <button className="p-1 hover:shadow-lg rounded-lg hover:bg-gray-800 transition-colors" disabled={data && page + 1 === Math.ceil(data.total / pageSize)} onClick={() => setPage(page + 1)}>
                 <ArrowRightIcon className="h-6 w-6" />
-            </button>
-          </>
-        )}
+              </button>
+            </>
+          )}
       </div>
       <div className="space-y-2 p-4 border-2 border-gray-700 rounded-b-md h-[748px]">
-        {isLoading && <Loading />}
-        {selectedRecord && (
-          <SelectedGroupedFinding finding={selectedRecord} setFinding={setSelectedRecord} />
-        )}
-        {!selectedRecord && data && data.findings.map(g => (
-          <GroupedFindingItem key={g.finding.id} finding={g.finding} raws={g.raws || 0} setSelected={setSelectedRecord} />
-        ))}
+        {shouldShowLoader ? <Loading />
+          : selectedRecord ? <SelectedGroupedFinding finding={selectedRecord} setFinding={setSelectedRecord} />
+            : !selectedRecord && data && data.findings.map(g => (
+              <GroupedFindingItem key={g.finding.id} finding={g.finding} raws={g.raws || 0} setSelected={setSelectedRecord} />
+            ))
+        }
       </div>
     </div>
   )
@@ -61,13 +62,13 @@ const Loading = () => {
 
 const formatDiff = (diff: number) => {
   let remain = diff
-  const y = Math.floor(remain/year)
+  const y = Math.floor(remain / year)
   remain = remain - y * year
 
-  const m = Math.floor(remain/month)
+  const m = Math.floor(remain / month)
   remain = remain - m * month
 
-  const d = Math.floor(remain/day)
+  const d = Math.floor(remain / day)
 
   if (y) {
     return `${y}y and ${m}mo ago`
@@ -80,11 +81,11 @@ const formatDiff = (diff: number) => {
   }
 }
 
-const GroupedFindingItem = ({finding, setSelected, raws}: {finding: GroupedFinding, setSelected: (finding: GroupedFinding) => void, raws: number}) => {
+const GroupedFindingItem = ({ finding, setSelected, raws }: { finding: GroupedFinding, setSelected: (finding: GroupedFinding) => void, raws: number }) => {
   const diff = new Date().getTime() - new Date(finding.groupedFindingCreated).getTime()
   const diffString = formatDiff(diff)
 
-  const progress = Math.floor(finding.progress*100).toString() + "%"
+  const progress = Math.floor(finding.progress * 100).toString() + "%"
 
   return (
     <div className={twMerge("grid grid-cols-10 w-full h-10 px-2 bg-gray-700 items-center border border-transparent shadow")}>
@@ -108,7 +109,7 @@ const GroupedFindingItem = ({finding, setSelected, raws}: {finding: GroupedFindi
 
       <div className="col-span-3">
         <div className="w-full h-6 bg-gray-800 relative rounded-full overflow-clip">
-          <div className={`absolute h-6 left-0 bg-gradient-to-r from-blue-800 to-blue-600`} style={{width: progress}} />
+          <div className={`absolute h-6 left-0 bg-gradient-to-r from-blue-800 to-blue-600`} style={{ width: progress }} />
           <div className="absolute w-full left-0 text-center">{progress}</div>
         </div>
       </div>
@@ -126,17 +127,17 @@ const GroupedFindingItem = ({finding, setSelected, raws}: {finding: GroupedFindi
   )
 }
 
-const SelectedGroupedFinding = ({finding, setFinding}: {finding: GroupedFinding, setFinding: (finding: GroupedFinding | undefined) => void}) => {
-  const {data, isLoading} = trpc.getRaws.useQuery({id: finding.id})
-  const {data: owners, isLoading: ownersLoading} = trpc.getPossibleOwners.useQuery()
-  const {mutate} = trpc.changeOwner.useMutation()
+const SelectedGroupedFinding = ({ finding, setFinding }: { finding: GroupedFinding, setFinding: (finding: GroupedFinding | undefined) => void }) => {
+  const { data, isLoading } = trpc.getRaws.useQuery({ id: finding.id })
+  const { data: owners, isLoading: ownersLoading } = trpc.getPossibleOwners.useQuery()
+  const { mutate } = trpc.changeOwner.useMutation()
   const [owner, setOwner] = useState<string>(finding.owner)
 
   const ownerChange = (owner: string) => {
     setOwner(owner)
     mutate({ id: finding.id, owner })
   }
-  
+
   return (
     <>
       <div onClick={() => setFinding(undefined)} className="hover:bg-white/25 -mt-4 -ml-4 p-4 w-16 transition-colors">
@@ -202,10 +203,10 @@ const SelectedGroupedFinding = ({finding, setFinding}: {finding: GroupedFinding,
       <div className="relative border-2 border-gray-600 h-[535px] rounded-md">
         <div className="absolute -top-4 bg-slate-900 px-1">Raw Findings</div>
         <div className="p-4 overflow-y-auto h-full space-y-2">
-          {isLoading && 
+          {isLoading &&
             new Array(1).fill(0, 0, 1).map((_, x) => (
               <div key={x} className="bg-gray-800 animate-pulse h-[128px]" />
-          ))}
+            ))}
           {data && data.map(d => <RawFinding key={d.id} finding={d} />)}
         </div>
       </div>
@@ -213,17 +214,17 @@ const SelectedGroupedFinding = ({finding, setFinding}: {finding: GroupedFinding,
   )
 }
 
-const RawFinding = ({finding}: {finding: RawFinding}) => {
+const RawFinding = ({ finding }: { finding: RawFinding }) => {
 
   const statusIcon = finding.status === 'open' ? <span className="text-sm text-cyan-500"><DocumentPlusIcon className="inline h-4 w-4" /> Open</span>
-                    : finding.status === 'fixed' ? <span className="text-sm text-green-500"><CheckIcon className="inline h-4 w-4" /> Fixed</span>
-                    : <span className="text-sm text-yellow-500"><ClockIcon className="inline h-4 w-4" /> In Progress</span>
+    : finding.status === 'fixed' ? <span className="text-sm text-green-500"><CheckIcon className="inline h-4 w-4" /> Fixed</span>
+      : <span className="text-sm text-yellow-500"><ClockIcon className="inline h-4 w-4" /> In Progress</span>
 
   return (
     <div className="bg-gray-700 p-2">
       <div className="flex items-center gap-2">
         #{finding.id} - <span className={twMerge(finding.severity === "critical" && "text-red-500" || finding.severity === 'high' && "text-yellow-500" || "", "uppercase")}>{finding.severity}</span>
-         - {statusIcon}
+        - {statusIcon}
       </div>
 
       <div className="flex justify-left gap-4">
